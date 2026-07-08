@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dvdlx4r3n4hgf"]
 
-[ext_resource type="Script" uid="uid://brei7tvi21rcg" path="res://scenes/bake_path_to_positions.gd" id="1_hslu4"]
+[ext_resource type="Script" uid="uid://brei7tvi21rcg" path="res://scripts/bake_path_to_positions.gd" id="1_hslu4"]
 
 [sub_resource type="Curve3D" id="Curve3D_s3hph"]
 _data = {
@@ -17,6 +17,6 @@ curve = SubResource("Curve3D_s3hph")
 [node name="PathBaker" type="Node" parent="." unique_id=1818074735 node_paths=PackedStringArray("path3d")]
 script = ExtResource("1_hslu4")
 path3d = NodePath("../Path3D")
-texture_width = 64
-gap_size_ = "0.107"
+texture_width = 16
+gap_size_ = "0.431"
 export_folder_path = "res://export"
