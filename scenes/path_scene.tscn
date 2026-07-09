@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://dvdlx4r3n4hgf"]
 
 [ext_resource type="Script" uid="uid://brei7tvi21rcg" path="res://scripts/bake_path_to_positions.gd" id="1_hslu4"]
+[ext_resource type="Script" uid="uid://bib6usf7pwki5" path="res://scripts/path_to_positions_debugger.gd" id="2_amqnd"]
 
 [sub_resource type="Curve3D" id="Curve3D_s3hph"]
 _data = {
@@ -8,6 +9,11 @@ _data = {
 "tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0)
 }
 point_count = 6
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_q1u5f"]
+top_radius = 0.0
+bottom_radius = 0.05
+height = 0.1
 
 [node name="root" type="Node3D" unique_id=1454665822]
 
@@ -18,5 +24,9 @@ curve = SubResource("Curve3D_s3hph")
 script = ExtResource("1_hslu4")
 path3d = NodePath("../Path3D")
 texture_width = 16
-gap_size_ = "0.431"
+gap_size_ = "0.459"
 export_folder_path = "res://export"
+
+[node name="PathDebugger" type="Node" parent="." unique_id=1218683763]
+script = ExtResource("2_amqnd")
+debug_mesh = SubResource("CylinderMesh_q1u5f")

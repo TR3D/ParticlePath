@@ -35,7 +35,7 @@ var btn_bake = bake_positions
 var spacing : 
 	get() :
 		if path3d != null: 
-			return path3d.curve.get_baked_length() / texture_width
+			return path3d.curve.get_baked_length() / max(texture_width-1, 1) # sample at exact end of curve
 		else: 
 			return 0.0
 
@@ -51,8 +51,8 @@ var texture_name : String:
 signal bake_finished
 
 # helper function
-func save_texture(path: String, data: Image) -> void:
-	var error = data.save_png(path)
+func save_texture(path: String, suffix : String, data: Image) -> void:
+	var error = data.save_exr(path + suffix + ".exr")
 	if error != OK:
 		print("error saving %s" % path)
 	
@@ -75,7 +75,8 @@ func bake_positions() -> void:
 	# Calculate data
 	for i in range(texture_width):
 		var distance = i * spacing
-		var sample_trans = path3d.curve.sample_baked_with_rotation(distance, true, false)
+		# sample path in world space
+		var sample_trans = path3d.global_transform * path3d.curve.sample_baked_with_rotation(distance, true)
 		
 		curve_positions.append(sample_trans.origin)
 		curve_up.append(sample_trans.basis.y)
@@ -93,17 +94,17 @@ func bake_positions() -> void:
 		Image.FORMAT_RGBF,
 		curve_up.to_byte_array())
 		
-	var path_pos:= export_folder_path.path_join(path3d.name + "_pos.png")
-	save_texture(path_pos, pos_image)
+	var path_pos:= export_folder_path.path_join(path3d.name)
+	save_texture(path_pos, "_pos", pos_image)
 	
-	var path_up:= export_folder_path.path_join(path3d.name + "_up.png")
-	save_texture(path_up, up_image)
-	
+	var path_up:= export_folder_path.path_join(path3d.name)
+	save_texture(path_up, "_up", up_image)
+		
 	# assign baked textures 
 	if Engine.is_editor_hint():
 		EditorInterface.get_resource_filesystem().scan()
-		tex_position = load(path_pos)
-		tex_up_vector = load(path_up)
+		tex_position = load(path_pos + "_pos.exr")
+		tex_up_vector = load(path_up+ "_up.exr")
 	
 	# Emit signal
 	emit_signal("bake_finished")
