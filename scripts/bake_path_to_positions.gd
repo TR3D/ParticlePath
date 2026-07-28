@@ -45,7 +45,6 @@ var texture_name : String:
 		if texture_name_override.is_empty():
 			return path3d.name.to_snake_case()
 		return texture_name_override
-
 #endregion
 
 signal bake_finished
@@ -55,6 +54,15 @@ func save_texture(path: String, suffix : String, data: Image) -> void:
 	var error = data.save_exr(path + suffix + ".exr")
 	if error != OK:
 		print("error saving %s" % path)
+		
+func save_resource(path: String, suffix : String, data: Resource) -> void:
+	var complete_path = path + suffix + ".tres"
+	var error = ResourceSaver.save(data, complete_path)  #ave_exr(path + suffix + ".exr")
+	if error != OK:
+		push_error("Failed to save %s (error %d)" % [complete_path, error])
+	else:
+		print("Saved data to ", complete_path)
+
 	
 func bake_positions() -> void:
 	# Safety checks
@@ -71,10 +79,12 @@ func bake_positions() -> void:
 	# Create resources
 	var curve_positions : PackedVector3Array
 	var curve_up : PackedVector3Array
+	var length = path3d.curve.get_baked_length()
 	
 	# Calculate data
 	for i in range(texture_width):
-		var distance = i * spacing
+		# clamp distance to exact curve length
+		var distance = min(i * spacing, length)
 		# sample path in world space
 		var sample_trans = path3d.global_transform * path3d.curve.sample_baked_with_rotation(distance, true)
 		
@@ -94,17 +104,17 @@ func bake_positions() -> void:
 		Image.FORMAT_RGBF,
 		curve_up.to_byte_array())
 		
-	var path_pos:= export_folder_path.path_join(path3d.name)
-	save_texture(path_pos, "_pos", pos_image)
+	var path_pos:= export_folder_path.path_join(texture_name)
+	save_resource(path_pos, "_pos", pos_image)
 	
-	var path_up:= export_folder_path.path_join(path3d.name)
-	save_texture(path_up, "_up", up_image)
+	var path_up:= export_folder_path.path_join(texture_name)
+	save_resource(path_up, "_up", up_image)
 		
 	# assign baked textures 
 	if Engine.is_editor_hint():
 		EditorInterface.get_resource_filesystem().scan()
-		tex_position = load(path_pos + "_pos.exr")
-		tex_up_vector = load(path_up+ "_up.exr")
+		tex_position = load(path_pos + "_pos.tres") as CompressedTexture2D
+		tex_up_vector = load(path_up+ "_up.tres") as CompressedTexture2D
 	
 	# Emit signal
 	emit_signal("bake_finished")
