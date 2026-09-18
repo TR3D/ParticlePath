@@ -39,7 +39,7 @@ var spacing :
 		else: 
 			return 0.0
 
-# Internal texture name, use path3d name if the user didn't provide something else
+# Internal texture name, use path3d name if left empty by user
 var texture_name : String:
 	get() :
 		if texture_name_override.is_empty():
@@ -65,7 +65,6 @@ func save_resource(path: String, suffix : String, data: Resource) -> void:
 
 	
 func bake_positions() -> void:
-	# Safety checks
 	if path3d == null:
 		printerr("Please assign a valid path3d node. Aborting!")
 		return
@@ -74,7 +73,7 @@ func bake_positions() -> void:
 		printerr("Please provide a valid export folder path. Aborting!")
 		return
 	
-	print("Baking texture!")
+	print("Baking textures!")
 	
 	# Create resources
 	var curve_positions : PackedVector3Array

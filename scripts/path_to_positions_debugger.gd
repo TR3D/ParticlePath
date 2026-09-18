@@ -6,7 +6,6 @@ extends Node
 @export var debug_mesh : Mesh
 
 @export_tool_button("Spawn Meshes") var btn_spawn = spawn_meshes
-
 @export_tool_button("Delete Meshes") var btn_delete = delete_meshes
 
 var multi_mesh_instance : MultiMeshInstance3D
@@ -16,19 +15,7 @@ func spawn_meshes() -> void:
 		printerr("Debugger is intended for editor use only!")
 	
 	var tex_image = tex_pos.get_data()
-	#tex_image.clear_mipmaps()
 	var tex_up = tex_up_vector.get_data()
-	#tex_up.clear_mipmaps()
-
-	#if tex_image.is_compressed():
-		#tex_image.decompress()
-	#if tex_image.get_format() != Image.FORMAT_RGBF:
-		#tex_image.convert(Image.FORMAT_RGBF)
-		#
-	#if tex_up.is_compressed():
-		#tex_up.decompress()
-	#if tex_up.get_format() != Image.FORMAT_RGBF:
-		#tex_up.convert(Image.FORMAT_RGBF)
 	
 	# read data
 	var pos : PackedVector3Array = tex_image.to_vector3_array()

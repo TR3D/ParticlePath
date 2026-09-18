@@ -9,15 +9,12 @@ uniform float segment_size = 0.1;
 uniform float speed = 2.0;
 
 
-// private
-
-
 void start() {
 	int samples = textureSize(tex_position, 0).x;
 	
 	// calculate uv_x coordinate
-	float idx_normalized = float(INDEX) / float(max(amount, 1));
-	int coord_x = int( round(idx_normalized * float(samples - 1) ) );
+	float idx_normalized = float(INDEX) / float(max(amount , 1));
+	int coord_x = int( round(idx_normalized * float(samples - 1)));
 	ivec2 coords = ivec2(coord_x, 0);
 
 	// read baked data using calulated coordinate
@@ -50,10 +47,9 @@ void process() {
 	
 	ivec2 uv0 = ivec2(uv0_x, 0);
 	ivec2 uv1 = ivec2(uv1_x, 0);
-	
+		
 	// hide particle while blending between end and start of curve
-	if ( (!curve_closed) && (uv0_x == samples-2) ) { COLOR.a = 0.0; } 
-	else { COLOR.a = 1.0; }
+	if ( (!curve_closed) && (uv0_x == samples-2)) { ACTIVE = false; } //COLOR.a = 0.0; } 
 	
 	// sample current position and next position from texture
 	vec3 pos0 = texelFetch(tex_position, uv0, 0).rgb;
@@ -65,9 +61,11 @@ void process() {
 	// calculate orientation 
 	vec3 up_y0 = normalize( texelFetch(tex_up_vector, uv0, 0).rgb );
 	vec3 up_y1 = normalize( texelFetch(tex_up_vector, uv1, 0).rgb );
-	vec3 up_y = mix(up_y0, up_y1, blend);
+
+	vec3 up_y = normalize( mix(up_y0, up_y1, blend) );
 	vec3 up_z = normalize(position - TRANSFORM[3].xyz);
-	vec3 up_x = cross(up_z, up_y);
+	vec3 up_x = cross(up_y, up_z);
+	
 	
 	// write data
 	TRANSFORM[0].xyz = up_x;

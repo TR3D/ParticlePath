@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" uid="uid://brei7tvi21rcg" path="res://scripts/bake_path_to_positions.gd" id="1_hslu4"]
 [ext_resource type="Script" uid="uid://bib6usf7pwki5" path="res://scripts/path_to_positions_debugger.gd" id="2_amqnd"]
-[ext_resource type="Image" uid="uid://bht77a5p46eul" path="res://export/Path3D_pos.tres" id="3_7e3ka"]
+[ext_resource type="Image" uid="uid://cfdfug2d4j214" path="res://export/test_pos.tres" id="3_6l5pe"]
 [ext_resource type="Shader" uid="uid://df3hn220yfvo6" path="res://shaders/particle_follow_path.gdshader" id="3_w5erf"]
-[ext_resource type="Image" uid="uid://bommcrmar7b3v" path="res://export/Path3D_up.tres" id="4_0rsip"]
+[ext_resource type="Image" uid="uid://begbvxaqce28w" path="res://export/test_up.tres" id="4_7e3ka"]
 
 [sub_resource type="Curve3D" id="Curve3D_s3hph"]
 bake_interval = 0.01
@@ -53,14 +53,13 @@ shader_parameter/segment_size = 0.109
 shader_parameter/speed = 1.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_r243j"]
-transparency = 1
-cull_mode = 2
 shading_mode = 0
 vertex_color_use_as_albedo = true
 
 [sub_resource type="QuadMesh" id="QuadMesh_5ocsa"]
 material = SubResource("StandardMaterial3D_r243j")
 size = Vector2(0.1, 0.1)
+orientation = 1
 
 [node name="root" type="Node3D" unique_id=1454665822]
 
@@ -77,11 +76,12 @@ texture_name_override = "test"
 
 [node name="PathDebugger" type="Node" parent="." unique_id=1218683763]
 script = ExtResource("2_amqnd")
-tex_pos = ExtResource("3_7e3ka")
-tex_up_vector = ExtResource("4_0rsip")
+tex_pos = ExtResource("3_6l5pe")
+tex_up_vector = ExtResource("4_7e3ka")
 debug_mesh = SubResource("CylinderMesh_q1u5f")
 
 [node name="GPUParticles3D" type="GPUParticles3D" parent="." unique_id=2047121877]
-fixed_fps = 60
+explosiveness = 1.0
+fixed_fps = 90
 process_material = SubResource("ShaderMaterial_uefp1")
 draw_pass_1 = SubResource("QuadMesh_5ocsa")
