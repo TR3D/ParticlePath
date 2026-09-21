@@ -6,7 +6,7 @@ uniform sampler2D tex_up_vector;
 uniform bool curve_closed = false;
 uniform int amount = 8;
 uniform float segment_size = 0.1;
-uniform float speed = 2.0;
+uniform float speed = 1.0;
 
 
 void start() {

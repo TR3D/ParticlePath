@@ -1,9 +1,10 @@
 @tool
-extends Node
+class_name PathBakerNode3D
+extends Path3D
 
 #region variables
 ## Path which is used for sampling
-@export var path3d : Path3D
+@export var path3d : Path3D = self
 
 ## Width of output texture
 @export_enum("16:16", "32:32", "64:64", "128:128", "256:256", "512:512" , "1024:1024") 
@@ -12,10 +13,10 @@ var texture_width := 32
 ## Spacing between position samples in world space (read only)
 @export_placeholder("Sample gaps") 
 var gap_size_ : 
-	get() : return str(spacing).pad_decimals(3)	
+	get() : return str(spacing).pad_decimals(3)
 
 ## Save texture output to this folder
-@export_dir var export_folder_path : String
+@export_dir var export_folder_path : String = "res://"
 
 ## Texture file name override. Just uses name of the path3d node if left empty!
 @export var texture_name_override := ""
@@ -25,11 +26,21 @@ var gap_size_ :
 var btn_bake = bake_positions
 
 ## Baked position texture
-@export var tex_position : CompressedTexture2D
+@export var tex_position : Image
 
 ## Baked up vector texture
-@export var tex_up_vector : CompressedTexture2D
+@export var tex_up_vector : Image
 
+## Spawn gpu particle system
+@export_tool_button("Spawn Particle System")
+var btn_spawn_particles = spawn_particles
+
+@export_group("Debugging")
+@export_tool_button("Spawn Debugger")
+var btn_spawn_debug = spawn_debugger
+
+@export_tool_button("Delete Debugger")
+var btn_remove_debugger = remove_debugger
 
 # Internal spacing variable for calculations
 var spacing : 
@@ -54,7 +65,8 @@ func save_texture(path: String, suffix : String, data: Image) -> void:
 	var error = data.save_exr(path + suffix + ".exr")
 	if error != OK:
 		print("error saving %s" % path)
-		
+
+
 func save_resource(path: String, suffix : String, data: Resource) -> void:
 	var complete_path = path + suffix + ".tres"
 	var error = ResourceSaver.save(data, complete_path)  #ave_exr(path + suffix + ".exr")
@@ -63,7 +75,7 @@ func save_resource(path: String, suffix : String, data: Resource) -> void:
 	else:
 		print("Saved data to ", complete_path)
 
-	
+
 func bake_positions() -> void:
 	if path3d == null:
 		printerr("Please assign a valid path3d node. Aborting!")
@@ -109,13 +121,66 @@ func bake_positions() -> void:
 	var path_up:= export_folder_path.path_join(texture_name)
 	save_resource(path_up, "_up", up_image)
 		
-	# assign baked textures 
+	# assign baked textures to inspector
 	if Engine.is_editor_hint():
 		EditorInterface.get_resource_filesystem().scan()
-		tex_position = load(path_pos + "_pos.tres") as CompressedTexture2D
-		tex_up_vector = load(path_up+ "_up.tres") as CompressedTexture2D
+		
+		var pos_path := path_pos + "_pos.tres"
+		var up_path := path_up + "_up.tres"
+		
+		var tex_pos = ResourceLoader.load(pos_path, "", ResourceLoader.CACHE_MODE_IGNORE)
+		var tex_up = ResourceLoader.load(up_path, "", ResourceLoader.CACHE_MODE_IGNORE)
+
+		set("tex_position", tex_pos)
+		set("tex_up_vector", tex_up)
+		notify_property_list_changed()
 	
 	# Emit signal
 	emit_signal("bake_finished")
 	print("Done baking!")
+
+
+func spawn_particles() -> void:
+	var particle_sys = GPUParticlePathNode3D.new()
+	particle_sys.name = "GPUParticlePathNode3D"
+	add_child(particle_sys, true)
 	
+	if Engine.is_editor_hint():
+		particle_sys.owner = get_tree().edited_scene_root
+
+	# Assign textures, spacing, etc. in process material
+	var pos_tex = ImageTexture.create_from_image(tex_position) #load as ImageTexture
+	var up_tex = ImageTexture.create_from_image(tex_up_vector) #load as ImageTexture
+
+	var proc_mat = particle_sys.process_mat
+	proc_mat.set_shader_parameter("tex_position", pos_tex)
+	proc_mat.set_shader_parameter("tex_up_vector", up_tex)
+	proc_mat.set_shader_parameter("segment_size", spacing)
+	proc_mat.set_shader_parameter("curve_closed", path3d.curve.closed)
+	
+	# Set parameters to properly initialize values in different places
+	particle_sys.count = 15
+	particle_sys.speed = 1.0
+	
+
+
+func spawn_debugger() -> void:
+	var debugger = PathBakerDebuggerNode3D.new()
+	debugger.tex_pos = tex_position
+	debugger.tex_up_vector = tex_up_vector
+	debugger.name = "PathBakerDebuggerNode3D"
+	add_child(debugger, true)
+	
+	if Engine.is_editor_hint():
+		debugger.owner = get_tree().edited_scene_root
+	
+	debugger.spawn_meshes()
+
+
+func remove_debugger() -> void:
+	if get_child_count() > 0:
+		var debugger = get_child(0)
+		if debugger:
+			debugger.queue_free()
+	else: 
+		printerr("No debugger child node found. Aborting!")
