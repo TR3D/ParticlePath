@@ -31,6 +31,9 @@ func _ready() -> void:
 	# Assign mesh to draw pass
 	draw_pass_1 = particle_mesh
 	
+	# Make particle calculations in local space
+	local_coords = true
+	
 	
 
 # Set amount for inspector variable, particle system and process material
