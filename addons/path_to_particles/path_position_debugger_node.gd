@@ -1,4 +1,5 @@
 @tool
+class_name PathBakerDebuggerNode3D
 extends Node
 
 @export var tex_pos : Image
@@ -9,6 +10,23 @@ extends Node
 @export_tool_button("Delete Meshes") var btn_delete = delete_meshes
 
 var multi_mesh_instance : MultiMeshInstance3D
+
+func _init() -> void:
+	# Only set if not already assigned (prevents overwriting user choices)
+	if debug_mesh == null:
+		var mesh = CylinderMesh.new()
+		mesh.bottom_radius = 0.05
+		mesh.top_radius = 0.0
+		mesh.height = 0.1
+		mesh.cap_top = false
+		mesh.radial_segments = 16
+		mesh.rings = 0
+		debug_mesh = mesh
+
+func _ready() -> void:
+	# duplicate to have no shared resource across debugger instances
+	if debug_mesh:
+		debug_mesh = debug_mesh.duplicate() 
 
 func spawn_meshes() -> void:
 	if not Engine.is_editor_hint():
@@ -54,7 +72,7 @@ func spawn_meshes() -> void:
 		
 	
 	var root_node = get_tree().edited_scene_root
-	add_child(multi_mesh_instance)
+	add_child(multi_mesh_instance, true, Node.INTERNAL_MODE_FRONT)
 	multi_mesh_instance.owner = root_node
 
 func delete_meshes() -> void:
