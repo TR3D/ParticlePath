@@ -2,10 +2,7 @@
 Godot plugin to bake curve data to textures that can then be fetched in a GPU-Particle system.
 Adds `PathBaker3D` node to bake position and up-vector data from Curve3D to textures. Use the `GPUParticlePathNode3D` to spawn GPU particles that follow a pre-baked curve.
 
-<img width="40%" height="40%" alt="Peek 2026-10-03 21-07" src="https://github.com/user-attachments/assets/ac0b1b2e-2b4d-43b1-8062-c5932e120663" />
-<img width="40%" height="40%" alt="Peek 2026-10-03 21-12" src="https://github.com/user-attachments/assets/d1e8d048-04a3-446f-ac3a-1b383ac07db7" />
-
-<img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/67239eba-f12c-42b9-8d3d-80904e554398" />
+<img width="100%" height="100%" alt="ezgif com-optimize" src="https://github.com/user-attachments/assets/26af24c9-fca6-452e-a06b-5d8f96d951fa" />
 
 ## Installation
 Plugin activation workflow
