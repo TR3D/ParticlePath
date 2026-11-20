@@ -10,12 +10,17 @@ extends GPUParticles3D
 @export var speed = 1.0:
 	set = set_speed
 
-@onready var process_shader = load("res://addons/path_to_particles/particle_path_follow.gdshader")
-@onready var process_mat = ShaderMaterial.new()
+@export var process_mat : ShaderMaterial
+
+var process_shader = preload("res://addons/path_to_particles/particle_path_follow.gdshader")
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	process_mat.shader = process_shader
+	if process_mat == null:
+		process_mat = ShaderMaterial.new()
+		process_mat.shader = process_shader
+		process_mat.resource_local_to_scene = true
+		
 	set_process_material(process_mat)
 	
 	# Create material
@@ -34,15 +39,26 @@ func _ready() -> void:
 	# Make particle calculations in local space
 	local_coords = true
 	
+	# Apply the current exported values
+	amount = count
+	process_mat. set_shader_parameter("amount", count)
+	process_mat.set_shader_parameter("speed", speed)
+	
+	# Make sure particles are actually running
+	emitting = true
+	restart()
 	
 
 # Set amount for inspector variable, particle system and process material
 func set_count(value : int) -> void:
 	count = value
-	process_mat.set_shader_parameter("amount", value)
 	amount = value
+	if process_mat:
+			process_mat.set_shader_parameter("amount", value)
+		
 	
 # Set speed for inspector variable and process material
 func set_speed(value : float) -> void:
 	speed = value
-	process_mat.set_shader_parameter("speed", value)
+	if process_mat:
+		process_mat.set_shader_parameter("speed", value)
